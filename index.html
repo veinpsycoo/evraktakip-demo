@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EvrakTakip — Mükellef Evrak Takibi (Demo)</title>
+<meta name="description" content="Mali müşavirler için aylık mükellef evrak takibi: kimden ne eksik, tek tıkla WhatsApp hatırlatma, şifresiz yükleme linki. Demo.">
+<meta name="robots" content="noindex">
+<style>
+:root{
+  --bg:#f4f6f9;--card:#fff;--ink:#141821;--mute:#5b6372;--line:#e2e6ec;
+  --brand:#1f4fa3;--ok:#1e7d45;--ok-bg:#e6f4ec;--warn:#9a6200;--warn-bg:#fff4dc;
+  --late:#b3261e;--late-bg:#fdecea;--soon:#1d5fa8;--soon-bg:#e7f0fb;--wa:#1fa855;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+a{color:inherit}
+header{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.bar{max-width:1080px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.logo{font-weight:800;font-size:18px;display:flex;align-items:center;gap:8px}
+.logo i{width:26px;height:26px;border-radius:7px;background:var(--brand);display:inline-grid;place-items:center;color:#fff;font-style:normal;font-size:14px}
+.demo-tag{font-size:12px;background:var(--warn-bg);color:var(--warn);padding:2px 8px;border-radius:99px;font-weight:600}
+nav{display:flex;gap:4px;overflow-x:auto;max-width:1080px;margin:0 auto;padding:0 16px 8px}
+nav button{border:0;background:none;padding:8px 12px;border-radius:8px;font:inherit;font-weight:600;color:var(--mute);cursor:pointer;white-space:nowrap}
+nav button.on{background:var(--ink);color:#fff}
+main{max-width:1080px;margin:0 auto;padding:16px}
+h1{font-size:22px;margin:4px 0 4px}h2{font-size:17px;margin:0 0 10px}
+.sub{color:var(--mute);margin:0 0 16px}
+.grid{display:grid;gap:12px}
+.kpis{grid-template-columns:repeat(4,1fr)}
+@media(max-width:760px){.kpis{grid-template-columns:repeat(2,1fr)}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
+.kpi b{display:block;font-size:28px;line-height:1.1}
+.kpi span{color:var(--mute);font-size:13px}
+.kpi.late b{color:var(--late)}.kpi.warn b{color:var(--warn)}.kpi.ok b{color:var(--ok)}
+.badge{display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.b-late{background:var(--late-bg);color:var(--late)}.b-warn{background:var(--warn-bg);color:var(--warn)}
+.b-soon{background:var(--soon-bg);color:var(--soon)}.b-ok{background:var(--ok-bg);color:var(--ok)}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;color:var(--ink);padding:8px 12px;border-radius:9px;font:inherit;font-weight:600;cursor:pointer;text-decoration:none}
+.btn.p{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn.wa{background:var(--wa);border-color:var(--wa);color:#fff}
+.btn.s{padding:5px 9px;font-size:13px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.sp{flex:1}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;color:var(--mute);font-weight:600;text-transform:uppercase;letter-spacing:.02em}
+.tw{overflow-x:auto}
+.cust{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+.cust:last-child{border-bottom:0}
+.cust .info{flex:1;min-width:0}
+.cust .info b{display:block}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.chip{font-size:12px;padding:3px 8px;border-radius:99px;border:1px solid var(--line);background:#fff;cursor:pointer;font:inherit;font-size:12px}
+.chip.eks{background:var(--late-bg);color:var(--late);border-color:#f3c7c3}
+.chip.ok{background:var(--ok-bg);color:var(--ok);border-color:#c5e6d2}
+.bar-p{height:8px;background:#e9edf2;border-radius:99px;overflow:hidden;margin-top:6px}
+.bar-p i{display:block;height:100%;background:var(--ok)}
+@media(max-width:600px){
+  nav{flex-wrap:wrap;overflow:visible}
+  nav button{padding:6px 10px;font-size:14px}
+  .hm{display:none}
+  th,td{padding:8px 5px}
+  .cust.due{flex-direction:column}
+  .cust.due .act{text-align:left!important;width:100%}
+  .cust.due .act .row{justify-content:flex-start!important}
+}
+.mute{color:var(--mute)}.small{font-size:13px}
+input,select,textarea{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;width:100%}
+textarea{min-height:90px}
+label{display:block;font-size:13px;font-weight:600;margin:10px 0 4px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:760px){.two{grid-template-columns:1fr}}
+.drop{border:2px dashed #c4c9d2;border-radius:12px;padding:28px;text-align:center;background:#fafbfc;cursor:pointer}
+.drop.over{border-color:var(--brand);background:#f2f6fd}
+.hide{display:none!important}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;font-weight:600;z-index:20}
+.chk{display:flex;gap:8px;align-items:center;padding:6px 0;font-size:14px}
+.chk input{width:auto}
+/* mükellef yükleme sayfası */
+.pub{max-width:440px;margin:0 auto}
+.pub .head{background:var(--brand);color:#fff;border-radius:14px 14px 0 0;padding:16px}
+.pub .body{background:#fff;border:1px solid var(--line);border-top:0;border-radius:0 0 14px 14px;padding:16px}
+.up{display:flex;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.up:last-child{border-bottom:0}
+.up .t{flex:1}
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <div class="logo"><i>📁</i>EvrakTakip</div>
+    <span class="demo-tag">DEMO — örnek veri</span>
+    <span class="sp"></span>
+    <span class="small mute" id="buroTop"></span>
+  </div>
+  <nav id="nav">
+    <button data-v="panel" class="on">Panel</button>
+    <button data-v="eksik">Bu Ay Eksikler</button>
+    <button data-v="mukellef">Mükellefler</button>
+    <button data-v="sablon">Evrak Şablonu</button>
+    <button data-v="aktar">Excel'den Aktar</button>
+    <button data-v="ayar">Ayarlar</button>
+  </nav>
+</header>
+<main id="app"></main>
+<div id="toast" class="toast hide"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+"use strict";
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const bugun = () => { const d = new Date(); d.setHours(0,0,0,0); return d; };
+const iso = d => { const x = new Date(d); return x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0")+"-"+String(x.getDate()).padStart(2,"0"); };
+const fmt = d => d ? new Date(d).toLocaleDateString("tr-TR", {day:"2-digit", month:"2-digit", year:"numeric"}) : "—";
+const AYLAR = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
+function toast(t){ const el = $("#toast"); el.textContent = t; el.classList.remove("hide"); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.add("hide"), 2200); }
+const store = {
+  get(k){ try { return JSON.parse(localStorage.getItem(k)); } catch(e){ return null; } },
+  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
+};
+function telNorm(t){ let d = String(t || "").replace(/\D/g, ""); if (d.length === 10 && d[0] === "5") d = "90" + d; else if (d.length === 11 && d[0] === "0") d = "9" + d; return d; }
+
+/* Dönem: bir önceki ay; son gün: bu ayın 28'i (KDV/muhtasar beyan günü, ayarlanabilir) */
+function donem(){ const b = bugun(); const d = new Date(b.getFullYear(), b.getMonth()-1, 1); return { key: d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"), ad: AYLAR[d.getMonth()]+" "+d.getFullYear() }; }
+function sonGun(){ const b = bugun(); return new Date(b.getFullYear(), b.getMonth(), Math.min(+AYAR.sonGun || 28, 28)); }
+const kalanGun = () => Math.round((sonGun() - bugun()) / 864e5);
+
+/* ---------- ayarlar ---------- */
+const EVRAK = {
+  ekstre: "Banka ekstresi",
+  kk: "Kredi kartı ekstresi",
+  fis: "Gider fiş ve faturaları",
+  z: "Z raporu / ÖKC",
+  pos: "POS slipleri / raporu",
+  bordro: "Puantaj (bordro için)",
+  kira: "Kira makbuzu / dekont",
+  sgk: "İşe giriş-çıkış bilgisi"
+};
+const DEF_AYAR = {
+  buro: "Örnek Mali Müşavirlik",
+  sonGun: 28,
+  sablon: "Merhaba {mukellef}, {donem} dönemi için şu evraklarınız henüz bize ulaşmadı:\n{eksikler}\n\nTelefonunuzdan fotoğraf çekip bu linkten yükleyebilirsiniz (şifre gerekmez):\n{link}\n\nBeyan son günü {songun}. Teşekkürler,\n{buro}"
+};
+let AYAR = Object.assign({}, DEF_AYAR, store.get("et_ayar") || {});
+
+/* ---------- örnek veri ---------- */
+function ornekVeri(){
+  const ad = [["Deniz Gıda Ltd. Şti.","ltd"],["Ahmet Yılmaz (Berber)","sahis"],["Kardeşler Oto Servis","sahis"],["Mavi Kafe Ltd. Şti.","ltd"],["Güneş Eczanesi","sahis"],["Akın Tekstil Ltd. Şti.","ltd"],["Nur Kreş","sahis"],["Çınar Fırın","sahis"],["Ekin Lojistik A.Ş.","ltd"],["Selin Kaya (Diyetisyen)","serbest"],["Öz Kardeş Mobilya","sahis"],["Park Emlak","sahis"],["Yıldız Yazılım Ltd. Şti.","ltd"],["Dr. Murat Er (Diş)","serbest"]];
+  const sablonTur = {
+    ltd: ["ekstre","kk","fis","bordro","sgk","kira"],
+    sahis: ["ekstre","fis","z","pos","kira"],
+    serbest: ["ekstre","fis","kira"]
+  };
+  let seed = 11; const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+  const mukellefler = ad.map(([a, t], i) => ({ id: "K"+(201+i), ad: a, tur: t, tel: "0532 000 01 " + String(10+i), evrak: sablonTur[t].slice() }));
+  const teslim = {}; const dk = donem().key; teslim[dk] = {};
+  mukellefler.forEach(m => {
+    teslim[dk][m.id] = {};
+    const oran = [1,0,4,9,12].includes(mukellefler.indexOf(m)) ? 1 : rnd();
+    m.evrak.forEach(e => { if (rnd() < oran) teslim[dk][m.id][e] = { tarih: iso(new Date(bugun() - Math.floor(rnd()*9)*864e5)), kanal: rnd() < .5 ? "Yükleme linki" : "WhatsApp" }; });
+  });
+  return { mukellefler, teslim, hatirlatma: {} };
+}
+let DB = store.get("et_db") || ornekVeri();
+const kaydet = () => { store.set("et_db", DB); store.set("et_ayar", AYAR); };
+function donemTeslim(mid){ const dk = donem().key; DB.teslim[dk] = DB.teslim[dk] || {}; DB.teslim[dk][mid] = DB.teslim[dk][mid] || {}; return DB.teslim[dk][mid]; }
+const mukellef = id => DB.mukellefler.find(m => m.id === id);
+const eksikler = m => m.evrak.filter(e => !donemTeslim(m.id)[e]);
+const yukleUrl = id => location.href.split("#")[0] + "#yukle/" + encodeURIComponent(id);
+
+function waLink(m){
+  const ek = eksikler(m);
+  const msg = AYAR.sablon
+    .replaceAll("{mukellef}", m.ad).replaceAll("{donem}", donem().ad)
+    .replaceAll("{eksikler}", ek.map(e => "• " + EVRAK[e]).join("\n"))
+    .replaceAll("{link}", yukleUrl(m.id)).replaceAll("{songun}", fmt(sonGun())).replaceAll("{buro}", AYAR.buro);
+  const tel = telNorm(m.tel);
+  const gercek = tel.length === 12 && !/^90532000/.test(tel);
+  return (gercek ? "https://wa.me/" + tel : "https://wa.me/") + "?text=" + encodeURIComponent(msg);
+}
+function hatirlatildi(mid){ DB.hatirlatma[donem().key + mid] = iso(bugun()); kaydet(); }
+window.hatirlatildi = hatirlatildi;
+const sonHatirlatma = mid => DB.hatirlatma[donem().key + mid];
+
+/* ---------- görünümler ---------- */
+const V = {};
+V.panel = () => {
+  const ms = DB.mukellefler;
+  const tamam = ms.filter(m => !eksikler(m).length).length;
+  const topEksik = ms.reduce((s, m) => s + eksikler(m).length, 0);
+  const topEvrak = ms.reduce((s, m) => s + m.evrak.length, 0);
+  const hic = ms.filter(m => m.evrak.length && eksikler(m).length === m.evrak.length).length;
+  const kg = kalanGun();
+  const sira = ms.filter(m => eksikler(m).length).sort((a, b) => eksikler(b).length - eksikler(a).length).slice(0, 8);
+  return `
+  <h1>${esc(donem().ad)} dönemi</h1><p class="sub">${esc(AYAR.buro)} · Beyan son günü ${fmt(sonGun())} ${kg >= 0 ? `(<b>${kg} gün</b> kaldı)` : "(geçti)"}</p>
+  <div class="grid kpis">
+    <div class="card kpi ok"><b>${tamam}/${ms.length}</b><span>Evrakı tamam mükellef</span></div>
+    <div class="card kpi late"><b>${topEksik}</b><span>Eksik evrak (toplam ${topEvrak})</span></div>
+    <div class="card kpi warn"><b>${hic}</b><span>Hiç evrak göndermeyen</span></div>
+    <div class="card kpi"><b>${Math.round((topEvrak - topEksik) / Math.max(1, topEvrak) * 100)}%</b><span>Dönem tamamlanma</span>
+      <div class="bar-p"><i style="width:${Math.round((topEvrak - topEksik) / Math.max(1, topEvrak) * 100)}%"></i></div></div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <div class="row"><h2 style="margin:0">En çok eksiği olanlar</h2><span class="sp"></span><button class="btn s" onclick="go('eksik')">Tümü →</button></div>
+    <div class="tw"><table><thead><tr><th>Mükellef</th><th>Eksik</th><th class="hm">Son hatırlatma</th></tr></thead><tbody>
+    ${sira.map(m => `<tr><td><a href="javascript:void 0" onclick="acik='${m.id}';go('mukellef')">${esc(m.ad)}</a></td>
+      <td><span class="badge b-late">${eksikler(m).length} eksik</span><div class="small mute">${eksikler(m).map(e => esc(EVRAK[e])).join(", ")}</div></td>
+      <td class="hm">${sonHatirlatma(m.id) ? fmt(sonHatirlatma(m.id)) : '<span class="mute">—</span>'}</td></tr>`).join("") || `<tr><td colspan="3" class="mute">Bu dönem eksik evrak yok. 🎉</td></tr>`}
+    </tbody></table></div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h2>Nasıl çalışır?</h2>
+    <ol class="small" style="margin:0;padding-left:18px">
+      <li>Mükellef listenizi <b>Excel'den Aktar</b> ile yükleyin; her mükellefe hangi evrakların geleceğini <b>Evrak Şablonu</b>'ndan seçin.</li>
+      <li>Her ay <b>Bu Ay Eksikler</b> ekranı kimden ne gelmediğini gösterir.</li>
+      <li>Tek tıkla WhatsApp hatırlatması: eksik listesi ve mükellefe özel yükleme linki mesajda hazır.</li>
+      <li>Mükellef linke tıklar, telefonla fotoğraf çekip yükler; şifre, uygulama yok. Ekranınızda "geldi" olur.</li>
+    </ol>
+  </div>`;
+};
+
+V.eksik = () => {
+  const ms = DB.mukellefler.filter(m => eksikler(m).length).sort((a, b) => eksikler(b).length - eksikler(a).length);
+  return `
+  <h1>Bu Ay Eksikler</h1><p class="sub">${esc(donem().ad)} · Gelen evrakı işaretlemek için etikete dokunun. Mükellef linkten yüklerse kendiliğinden işaretlenir.</p>
+  <div class="card">
+  ${ms.map(m => { const ek = eksikler(m), sh = sonHatirlatma(m.id); return `<div class="cust due">
+      <div class="info"><b>${esc(m.ad)}</b>
+        <div class="small mute">${esc(m.tel)} · ${m.evrak.length - ek.length}/${m.evrak.length} geldi${sh ? " · son hatırlatma " + fmt(sh) : ""}</div>
+        <div class="chips">${m.evrak.map(e => `<button class="chip ${ek.includes(e) ? "eks" : "ok"}" onclick="evrakToggle('${m.id}','${e}')">${ek.includes(e) ? "✗" : "✓"} ${esc(EVRAK[e])}</button>`).join("")}</div>
+      </div>
+      <div class="act" style="text-align:right">
+        <span class="badge b-late">${ek.length} eksik</span>
+        <div class="row" style="margin-top:8px;justify-content:flex-end">
+          <a class="btn wa s" target="_blank" rel="noopener" href="${waLink(m)}" onclick="hatirlatildi('${m.id}');setTimeout(render,300)">WhatsApp hatırlat</a>
+          <a class="btn s" href="#yukle/${esc(m.id)}">Mükellef görünümü</a>
+        </div>
+      </div>
+    </div>`; }).join("") || '<p class="mute">Bu dönem herkes tamam. 🎉</p>'}
+  </div>`;
+};
+window.evrakToggle = (mid, e) => {
+  const t = donemTeslim(mid);
+  if (t[e]) delete t[e]; else t[e] = { tarih: iso(bugun()), kanal: "Elle işaretlendi" };
+  kaydet(); render();
+};
+
+let acik = null;
+V.mukellef = () => {
+  const m = acik && mukellef(acik);
+  if (m){
+    const t = donemTeslim(m.id);
+    return `
+    <div class="row"><button class="btn s" onclick="acik=null;render()">← Mükellefler</button><span class="sp"></span>
+      <a class="btn s" href="#yukle/${esc(m.id)}">Mükellef görünümü</a>
+      <a class="btn wa s" target="_blank" rel="noopener" href="${waLink(m)}" onclick="hatirlatildi('${m.id}')">WhatsApp</a></div>
+    <h1 style="margin-top:12px">${esc(m.ad)}</h1><p class="sub">${esc(m.tel)} · ${({ltd:"Şirket", sahis:"Şahıs işletmesi", serbest:"Serbest meslek"})[m.tur] || ""}</p>
+    <div class="card tw"><h2>${esc(donem().ad)}</h2><table><thead><tr><th>Evrak</th><th>Durum</th><th class="hm">Geliş</th></tr></thead><tbody>
+    ${m.evrak.map(e => `<tr><td>${esc(EVRAK[e])}</td><td>${t[e] ? '<span class="badge b-ok">Geldi</span>' : '<span class="badge b-late">Eksik</span>'}</td>
+      <td class="hm">${t[e] ? fmt(t[e].tarih) + ' <span class="small mute">· ' + esc(t[e].kanal) + '</span>' : "—"}</td></tr>`).join("")}
+    </tbody></table></div>
+    <div class="card" style="margin-top:12px"><h2>Bu mükellefin evrak listesi</h2>
+      ${Object.keys(EVRAK).map(e => `<label class="chk"><input type="checkbox" ${m.evrak.includes(e) ? "checked" : ""} onchange="evrakSec('${m.id}','${e}',this.checked)"> ${esc(EVRAK[e])}</label>`).join("")}
+    </div>`;
+  }
+  return `
+  <h1>Mükellefler</h1><p class="sub">${DB.mukellefler.length} mükellef</p>
+  <input placeholder="Mükellef ara…" oninput="mFiltre(this.value)" style="margin-bottom:12px">
+  <div class="card" id="mliste">${mSatir("")}</div>`;
+};
+function mSatir(q){
+  q = q.toLocaleLowerCase("tr");
+  return DB.mukellefler.filter(m => !q || m.ad.toLocaleLowerCase("tr").includes(q)).map(m => { const ek = eksikler(m).length;
+    return `<div class="cust" style="cursor:pointer" onclick="acik='${m.id}';render()">
+      <div class="info"><b>${esc(m.ad)}</b><div class="small mute">${m.evrak.length} evrak türü · ${esc(m.tel)}</div></div>
+      ${ek ? `<span class="badge b-late">${ek} eksik</span>` : `<span class="badge b-ok">Tamam</span>`}</div>`; }).join("") || '<p class="mute">Sonuç yok.</p>';
+}
+window.mFiltre = q => { $("#mliste").innerHTML = mSatir(q); };
+window.evrakSec = (mid, e, on) => { const m = mukellef(mid); m.evrak = on ? [...new Set([...m.evrak, e])] : m.evrak.filter(x => x !== e); kaydet(); render(); };
+
+V.sablon = () => {
+  const turler = { ltd: "Şirket (Ltd./A.Ş.)", sahis: "Şahıs işletmesi", serbest: "Serbest meslek" };
+  return `
+  <h1>Evrak Şablonu</h1><p class="sub">Mükellef türüne göre her ay istenecek evraklar. Tek tıkla o türdeki tüm mükelleflere uygulanır; mükellef bazında da ayrı ayrı değiştirebilirsiniz.</p>
+  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">
+  ${Object.entries(turler).map(([k, ad]) => { const ornek = DB.mukellefler.find(m => m.tur === k);
+    return `<div class="card"><h2>${ad}</h2><div class="small mute">${DB.mukellefler.filter(m => m.tur === k).length} mükellef</div>
+    ${Object.keys(EVRAK).map(e => `<label class="chk"><input type="checkbox" data-t="${k}" value="${e}" ${ornek && ornek.evrak.includes(e) ? "checked" : ""}> ${esc(EVRAK[e])}</label>`).join("")}
+    <button class="btn p s" style="margin-top:8px" onclick="sablonUygula('${k}')">Bu türe uygula</button></div>`; }).join("")}
+  </div>`;
+};
+window.sablonUygula = k => {
+  const sec = [...document.querySelectorAll(`input[data-t="${k}"]:checked`)].map(i => i.value);
+  DB.mukellefler.filter(m => m.tur === k).forEach(m => m.evrak = sec.slice());
+  kaydet(); toast("Şablon uygulandı"); render();
+};
+
+/* Excel içe aktarma — dosya tarayıcıdan çıkmaz */
+let onizleme = null;
+V.aktar = () => `
+  <h1>Excel'den Aktar</h1>
+  <p class="sub">Mükellef listenizi olduğu gibi yükleyin (unvan, telefon, tür). Dosya bu demoda bilgisayarınızdan dışarı gönderilmez.</p>
+  <div class="card">
+    <div class="drop" id="drop" onclick="$('#dosya').click()"><b>Excel dosyasını buraya bırakın</b><div class="small mute">ya da tıklayıp seçin (.xlsx, .xls, .csv)</div></div>
+    <input type="file" id="dosya" accept=".xlsx,.xls,.csv" class="hide">
+    <div class="row" style="margin-top:10px"><span class="small mute">Elinizde hazır dosya yok mu?</span><button class="btn s" onclick="ornekExcel()">Örnek Excel indir</button></div>
+    <div id="onz" style="margin-top:14px"></div>
+  </div>`;
+const ESLE = { ad: ["mükellef","mukellef","unvan","ünvan","ad soyad","adı soyadı","firma","müşteri","cari","ad"], tel: ["telefon","tel","gsm","cep","whatsapp"], tur: ["tür","tur","tip","mükellef türü","şekil"] };
+function sutunBul(bas){
+  const norm = s => String(s).toLocaleLowerCase("tr").trim(); const r = {};
+  for (const [alan, adlar] of Object.entries(ESLE)){
+    let i = bas.findIndex(b => adlar.includes(norm(b)));
+    if (i < 0) i = bas.findIndex(b => adlar.some(a => a.length > 2 && norm(b).includes(a)));
+    if (i >= 0 && !Object.values(r).includes(i)) r[alan] = i;
+  }
+  return r;
+}
+function turCoz(v){ v = String(v || "").toLocaleLowerCase("tr"); if (/ltd|a\.?ş|şirket|sirket|kurum/.test(v)) return "ltd"; if (/serbest|smm|doktor|avukat/.test(v)) return "serbest"; return "sahis"; }
+function dosyaOku(f){
+  if (typeof XLSX === "undefined"){ toast("Excel okuyucu yüklenemedi"); return; }
+  const r = new FileReader();
+  r.onload = e => {
+    try {
+      const wb = XLSX.read(new Uint8Array(e.target.result), { type: "array" });
+      const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, raw: false, defval: "" }).filter(r => r.some(c => c !== ""));
+      if (rows.length < 2){ toast("Dosyada satır bulunamadı"); return; }
+      const bas = rows[0], es = sutunBul(bas);
+      if (es.ad == null){ $("#onz").innerHTML = '<p><span class="badge b-late">Mükellef adı sütunu bulunamadı</span> <span class="small mute">İlk satırda "Unvan" ya da "Mükellef" başlığı olmalı.</span></p>'; return; }
+      onizleme = rows.slice(1).map(r => ({ ad: String(r[es.ad]).trim(), tel: es.tel != null ? String(r[es.tel]).trim() : "", tur: es.tur != null ? turCoz(r[es.tur]) : "sahis" })).filter(k => k.ad);
+      const telsiz = onizleme.filter(k => telNorm(k.tel).length !== 12).length;
+      $("#onz").innerHTML = `<p><b>${onizleme.length}</b> mükellef bulundu.</p>
+        <p class="small">Tanınan sütunlar: ${Object.keys(es).map(k => `<span class="badge b-ok">${esc(bas[es[k]])} → ${k}</span>`).join(" ")}</p>
+        ${telsiz ? `<p class="small"><span class="badge b-warn">${telsiz} satırda geçerli cep numarası yok</span> <span class="mute">— hatırlatma için sonra eklenir.</span></p>` : ""}
+        <div class="tw"><table><thead><tr><th>Mükellef</th><th>Telefon</th><th>Tür</th></tr></thead><tbody>
+        ${onizleme.slice(0, 8).map(k => `<tr><td>${esc(k.ad)}</td><td>${esc(k.tel)}</td><td>${esc(k.tur)}</td></tr>`).join("")}</tbody></table></div>
+        ${onizleme.length > 8 ? `<p class="small mute">… ve ${onizleme.length - 8} satır daha</p>` : ""}
+        <div class="row" style="margin-top:10px"><button class="btn p" onclick="aktarOnayla(false)">Mevcut listeye ekle</button><button class="btn" onclick="aktarOnayla(true)">Örnek veriyi sil, yalnız benimkiler</button></div>`;
+    } catch (err){ toast("Dosya okunamadı"); }
+  };
+  r.readAsArrayBuffer(f);
+}
+window.aktarOnayla = sifirla => {
+  if (!onizleme) return;
+  if (sifirla) DB = { mukellefler: [], teslim: {}, hatirlatma: {} };
+  const varsayilan = { ltd: ["ekstre","kk","fis","bordro","sgk","kira"], sahis: ["ekstre","fis","z","pos","kira"], serbest: ["ekstre","fis","kira"] };
+  let n = DB.mukellefler.length + 1, eklenen = 0;
+  onizleme.forEach(k => { if (!DB.mukellefler.some(m => m.ad.toLocaleLowerCase("tr") === k.ad.toLocaleLowerCase("tr")))
+    { DB.mukellefler.push({ id: "K"+(600+n++), ad: k.ad, tur: k.tur, tel: k.tel, evrak: varsayilan[k.tur].slice() }); eklenen++; } });
+  const atl = onizleme.length - eklenen; onizleme = null; kaydet(); toast(eklenen + " mükellef eklendi" + (atl ? ", " + atl + " zaten vardı" : "")); go("eksik");
+};
+window.ornekExcel = () => {
+  if (typeof XLSX === "undefined"){ toast("Excel yazıcı yüklenemedi"); return; }
+  const rows = [["Unvan","Telefon","Tür"]];
+  DB.mukellefler.forEach(m => rows.push([m.ad, m.tel, ({ltd:"Ltd. Şti.", sahis:"Şahıs", serbest:"Serbest meslek"})[m.tur]]));
+  const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), "Mükellefler");
+  XLSX.writeFile(wb, "ornek-mukellef-listesi.xlsx");
+};
+
+V.ayar = () => `
+  <h1>Ayarlar</h1>
+  <div class="two">
+    <div class="card"><h2>Büro</h2>
+      <label>Büro adı</label><input id="a_b" value="${esc(AYAR.buro)}">
+      <label>Beyan son günü (ayın kaçı)</label><input id="a_g" type="number" min="1" max="28" value="${AYAR.sonGun}">
+    </div>
+    <div class="card"><h2>WhatsApp hatırlatma metni</h2>
+      <p class="small mute">Alanlar: {mukellef} {donem} {eksikler} {link} {songun} {buro}</p>
+      <textarea id="a_s" rows="9">${esc(AYAR.sablon)}</textarea>
+      <div class="row" style="margin-top:12px"><button class="btn p" onclick="ayarKaydet()">Kaydet</button><span class="sp"></span><button class="btn s" onclick="sifirla()">Demo verisini sıfırla</button></div>
+    </div>
+  </div>`;
+window.ayarKaydet = () => {
+  AYAR.buro = $("#a_b").value.trim() || DEF_AYAR.buro; AYAR.sonGun = Math.min(28, Math.max(1, +$("#a_g").value || 28));
+  AYAR.sablon = $("#a_s").value || DEF_AYAR.sablon; kaydet(); toast("Kaydedildi"); render();
+};
+window.sifirla = () => { DB = ornekVeri(); AYAR = Object.assign({}, DEF_AYAR); kaydet(); toast("Demo sıfırlandı"); go("panel"); };
+
+/* Mükellefin telefondan açtığı yükleme sayfası (şifresiz, kişiye özel link) */
+function yukleSayfa(id){
+  const m = mukellef(id);
+  if (!m) return `<div class="pub"><div class="card">Bu link geçersiz. <a href="#">Panele dön</a></div></div>`;
+  const t = donemTeslim(m.id), ek = eksikler(m);
+  return `
+  <div class="pub">
+    <p class="small"><a href="#">← Büro paneline dön (demo)</a></p>
+    <div class="head"><div class="small" style="opacity:.85">${esc(AYAR.buro)}</div><div style="font-size:20px;font-weight:800">${esc(m.ad)}</div>
+      <div class="small">${esc(donem().ad)} evrakları · son gün ${fmt(sonGun())}</div></div>
+    <div class="body">
+      <p class="small" style="margin-top:0">${ek.length ? `<b>${ek.length} evrak</b> bekleniyor. Fotoğraf çekin ya da PDF seçin; şifre gerekmez.` : "Bu ayın tüm evrakları geldi, teşekkürler! ✅"}</p>
+      ${m.evrak.map(e => `<div class="up"><div class="t"><b>${esc(EVRAK[e])}</b><div class="small mute">${t[e] ? "Gönderildi · " + fmt(t[e].tarih) : "Bekleniyor"}</div></div>
+        ${t[e] ? '<span class="badge b-ok">✓</span>' : `<label class="btn p s" style="margin:0">Yükle<input type="file" accept="image/*,application/pdf" capture="environment" class="hide" onchange="yuklendi('${m.id}','${e}',this)"></label>`}</div>`).join("")}
+      <p class="small mute" style="margin-top:14px">Demo: dosya hiçbir yere gönderilmez, yalnız "geldi" işaretlenir. Demoda link yalnız bu tarayıcıda çalışır; gerçek sürümde mükellef kendi telefonundan açar.</p>
+    </div>
+  </div>`;
+}
+window.yuklendi = (mid, e, inp) => { if (!inp.files[0]) return; donemTeslim(mid)[e] = { tarih: iso(bugun()), kanal: "Yükleme linki" }; kaydet(); toast("Gönderildi, teşekkürler"); render(); };
+
+/* ---------- yönlendirme ---------- */
+let gorunum = "panel";
+window.go = (v) => { gorunum = v; if (location.hash) history.pushState("", "", location.pathname + location.search); render(); scrollTo(0, 0); };
+function render(){
+  $("#buroTop").textContent = AYAR.buro;
+  let h = location.hash || ""; try { h = decodeURIComponent(h); } catch(e){} const nav = $("#nav");
+  if (h.startsWith("#yukle/")){ nav.classList.add("hide"); $("#app").innerHTML = yukleSayfa(h.slice(7)); return; }
+  nav.classList.remove("hide");
+  nav.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.v === gorunum));
+  $("#app").innerHTML = V[gorunum]();
+  if (gorunum === "aktar"){
+    const dr = $("#drop"), inp = $("#dosya");
+    inp.onchange = () => inp.files[0] && dosyaOku(inp.files[0]);
+    dr.ondragover = e => { e.preventDefault(); dr.classList.add("over"); };
+    dr.ondragleave = () => dr.classList.remove("over");
+    dr.ondrop = e => { e.preventDefault(); dr.classList.remove("over"); e.dataTransfer.files[0] && dosyaOku(e.dataTransfer.files[0]); };
+  }
+}
+$("#nav").addEventListener("click", e => { const b = e.target.closest("button"); if (b){ acik = null; go(b.dataset.v); } });
+addEventListener("hashchange", render);
+render();
+</script>
+</body>
+</html>
